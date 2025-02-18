@@ -1,0 +1,67 @@
+version: '3.6'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-service
+    environment:
+      MONGO_INITDB_DATABASE: accountsDB
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./data/mongodb:/data/db
+
+  account-service:
+    build:
+      context: ./account
+    container_name: account
+    environment:
+      DB_NAME: bankDB
+      DB_HOST: mongodb-service
+      DB_PORT: 27017
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/applogs:/tmp/logs
+    depends_on:
+      - mongodb
+
+  login-service:
+    build:
+      context: ./login
+    container_name: login
+    environment:
+      DB_NAME: bankDB
+      DB_HOST: mongodb-service
+      DB_PORT: 27017
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./data/applogs:/tmp/logs
+    depends_on:
+      - mongodb
+
+  transaction-service:
+    build:
+      context: ./transaction
+    container_name: transaction
+    environment:
+      DB_NAME: accountsDB
+      DB_HOST: mongodb-service
+      DB_PORT: 27017
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./data/applogs:/tmp/logs
+    depends_on:
+      - mongodb
+
+  balance-service:
+    build:
+      context: ./balance
+    container_name: balance
+    ports:
+      - "8085:8085"
+    depends_on:
+      - account-service

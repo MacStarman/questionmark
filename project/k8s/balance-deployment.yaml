@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: balance-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: balance
+  strategy: 
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: balance
+    spec:
+      containers:
+        - image: balance:latest
+          name: balance
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8085

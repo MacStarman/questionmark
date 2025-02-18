@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction
+  strategy: 
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: transaction
+    spec:
+      containers:
+        - image: transaction:latest
+          name: transaction
+          imagePullPolicy: Never
+          env:
+          - name: SPRING_DATA_MONGODB_HOST
+            value: mongodb-service
+          - name: SPRING_DATA_MONGODB_PORT
+            value: "27017"
+          - name: SPRING_DATA_MONGODB_DATABASE
+            value: bankDB
+          ports:
+            - containerPort: 8081
